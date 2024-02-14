@@ -1,17 +1,17 @@
 import threading
-from cli_chat import CliChatSocket
+from models.cli_chat import CliChatSocket
 
 def iniciaChat():
   endereco_local = (input("IP local: "), int(input("Porta: ")))
-  endereco_envio =  (input("IP destino: "), int(input("Porta: ")))
+  endereco_destino = (input("IP destino: "), int(input("Porta: ")))
 
-  servidor = CliChatSocket(endereco_local, endereco_envio)
+  servidor = CliChatSocket(endereco_local, endereco_destino)
 
   thread_servidor = threading.Thread(target=servidor.iniciar)
   thread_servidor.daemon = True
   thread_servidor.start()
 
-  thread_servidor.join() # Aguardar até que as threads terminem (isso não deve acontecer)
+  thread_servidor.join() # Caso a thread seja interrompida
 
 if __name__ == "__main__":
   iniciaChat()
