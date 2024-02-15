@@ -5,13 +5,13 @@ def iniciaChat():
   endereco_local = (input("IP local: "), int(input("Porta: ")))
   endereco_destino = (input("IP destino: "), int(input("Porta: ")))
 
-  servidor = CliChatSocket(endereco_local, endereco_destino)
+  chat = CliChatSocket(endereco_local, endereco_destino)
 
-  thread_servidor = threading.Thread(target=servidor.iniciar)
-  thread_servidor.daemon = True
-  thread_servidor.start()
+  thread_chat = threading.Thread(target=chat.iniciar)
+  thread_chat.daemon = True
+  thread_chat.start()
 
-  thread_servidor.join() # Caso a thread seja interrompida
+  thread_chat.join() # Caso a thread seja interrompida
 
 if __name__ == "__main__":
   iniciaChat()
