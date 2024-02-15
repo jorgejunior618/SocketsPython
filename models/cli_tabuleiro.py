@@ -14,22 +14,22 @@ class CliTabuleiroSocket:
 
   def __init__(self, endereco_local: tuple[str, int], endereco_destino: tuple[str, int]):
     self.jogo = r1.JogoRestaUm()
-    self.jogo.reiniciaTabuleiro()
     self.endereco_destino = endereco_destino
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     self.sock.bind(endereco_local)
 
-  def defineTurno(self):
+  def receberTurno(self):
     turno, _ = self.sock.recvfrom(1024)
+    turno = turno.decode()
     print(f" Seu adversário escolheu ser o jogador {turno}")
     return int(turno)
 
-  def recebeTurno(self):
+  def definirTurno(self):
     turno = input("\n Sua opção: ")
     while turno != '1' and turno != '2':
       turno = input(" Digite apenas 1 ou 2: ")
 
-    self.sock.sendto(turno, self.endereco_destino)
+    self.sock.sendto(turno.encode(), self.endereco_destino)
     turno = int(turno)
     return turno
 
@@ -55,6 +55,8 @@ class CliTabuleiroSocket:
     valido, destino = self.jogo.movimentoValido(mover, retirar)
 
     while(not valido):
+      movimento = input(" Movimento inválido tente novamente: ")
+      mover, retirar = self.jogo.recebeMovimento(movimento)
       valido, destino = self.jogo.movimentoValido(mover, retirar)
 
     self.jogo.fazMovimento(mover, retirar, destino)
@@ -62,6 +64,7 @@ class CliTabuleiroSocket:
     self.sock.sendto(movimento.encode(), self.endereco_destino)
 
   def iniciarJogador1(self):
+    self.jogo.reiniciaTabuleiro()
     self.jogo.imprimeTabuleiro()
 
     acabou, contPecas = self.jogo.estaNoFim()
@@ -72,15 +75,15 @@ class CliTabuleiroSocket:
       self.receberLance()
       acabou, contPecas = self.jogo.estaNoFim()
 
-    self.jogo.imprimeTabuleiro(self.jogo.tabuleiro)
     if contPecas > 1:
       print(f"\n Peças restantes: {contPecas}")
-      print(f" O vencedor é do jogador {2 - self.jogo.turno}\n")
-    else:
-      print(f" Parabens restou {contPecas}!")
       print(f" O vencedor é do jogador {self.jogo.turno + 1}\n")
+    else:
+      print(f" Restou {contPecas}!")
+      print(f" O vencedor é do jogador {2 - self.jogo.turno}\n")
 
   def iniciarJogador2(self):
+    self.jogo.reiniciaTabuleiro()
     self.jogo.imprimeTabuleiro()
 
     acabou, contPecas = self.jogo.estaNoFim()
@@ -91,10 +94,9 @@ class CliTabuleiroSocket:
       self.enviarLance()
       acabou, contPecas = self.jogo.estaNoFim()
 
-    self.jogo.imprimeTabuleiro(self.jogo.tabuleiro)
     if contPecas > 1:
       print(f"\n Peças restantes: {contPecas}")
-      print(f" O vencedor é do jogador {2 - self.jogo.turno}\n")
-    else:
-      print(f" Parabens restou {contPecas}!")
       print(f" O vencedor é do jogador {self.jogo.turno + 1}\n")
+    else:
+      print(f" Restou {contPecas}!")
+      print(f" O vencedor é do jogador {2 - self.jogo.turno}\n")
