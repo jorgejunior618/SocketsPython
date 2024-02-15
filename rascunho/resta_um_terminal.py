@@ -159,6 +159,7 @@ class JogoRestaUm:
 
     tab[mover[0]][mover[1]], tab[retirar[0]][retirar[1]], tab[destino[0]][destino[1]] = 'O','O' ,'*'
 
+    self.turno = 1 - self.turno
     self.tabuleiro = tab
 
   def recebeMovimento(self, movimento: str) -> list[list[int]]:
