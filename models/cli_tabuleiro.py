@@ -44,24 +44,22 @@ class CliTabuleiroSocket:
     mover, retirar = self.jogo.recebeMovimento(movimento)
     _, destino = self.jogo.movimentoValido(mover, retirar)
     self.jogo.fazMovimento(mover, retirar, destino)
-    self.jogo.imprimeTabuleiro()
+    return True
+    # self.jogo.imprimeTabuleiro()
 
-  def enviarLance(self):
+  def enviarLance(self, movimento: str) -> bool:
     '''## enviar_lance()
     Recebe o lance e envia para o adversário via Socket
     '''
-    movimento = input(" Seu movimento: ")
     mover, retirar = self.jogo.recebeMovimento(movimento)
     valido, destino = self.jogo.movimentoValido(mover, retirar)
 
-    while(not valido):
-      movimento = input(" Movimento inválido tente novamente: ")
-      mover, retirar = self.jogo.recebeMovimento(movimento)
-      valido, destino = self.jogo.movimentoValido(mover, retirar)
+    if not valido:
+      return False
 
     self.jogo.fazMovimento(mover, retirar, destino)
-    self.jogo.imprimeTabuleiro()
     self.sock.sendto(movimento.encode(), self.endereco_destino)
+    return True
 
   def iniciarJogador1(self):
     self.jogo.reiniciaTabuleiro()
