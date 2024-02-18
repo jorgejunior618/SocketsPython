@@ -2,8 +2,8 @@ import threading
 from models.cli_chat import CliChatSocket
 
 def iniciaChat():
-  endereco_local = (input("IP local: "), int(input("Porta: ")))
-  endereco_destino = (input("IP destino: "), int(input("Porta: ")))
+  endereco_local = ('localhost', 4321)
+  endereco_destino = ('localhost', 1234)
 
   chat = CliChatSocket(endereco_local, endereco_destino)
 
