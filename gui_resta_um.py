@@ -5,7 +5,7 @@ from pygame import mixer
 
 from models.cli_tabuleiro import CliTabuleiroSocket
 
-class RestaUmInterface:
+class GuiRestaUm:
   ''' # RestaUmInterface
 
   Classe que inicializa uma interface grafica, com `TKinter`, para o jogo Resta Um.
@@ -39,10 +39,10 @@ class RestaUmInterface:
     self.cliTab.jogo.reiniciaTabuleiro()
     self.criaJanela()
 
-    RestaUmInterface.img_tabuleiro = PhotoImage(file="assets/tabuleiro.png")
-    RestaUmInterface.img_peca = PhotoImage(file="assets/peca.png")
-    RestaUmInterface.img_vazio = PhotoImage(file="assets/vazio.png")
-    RestaUmInterface.img_peca_high = PhotoImage(file="assets/peca_highlight.png")
+    GuiRestaUm.img_tabuleiro = PhotoImage(file="assets/tabuleiro.png")
+    GuiRestaUm.img_peca = PhotoImage(file="assets/peca.png")
+    GuiRestaUm.img_vazio = PhotoImage(file="assets/vazio.png")
+    GuiRestaUm.img_peca_high = PhotoImage(file="assets/peca_highlight.png")
 
     self.criaTabuleiro()
     self.configuraEstilos()
@@ -78,54 +78,57 @@ class RestaUmInterface:
   ) -> tuple[bool, int, bool]:
     posicaoJogada = ["","a", "b", "c", "d", "e", "f", "g",""]
     pecaSelecionada = f"{posicaoJogada[x]}{y}"
-    removerDestaque = RestaUmInterface.pecaDestacada
+    removerDestaque = GuiRestaUm.pecaDestacada
 
     if (removerDestaque == tag):
-      RestaUmInterface.jogada = ""
-      RestaUmInterface.pecaDestacada = -1
+      GuiRestaUm.jogada = ""
+      GuiRestaUm.pecaDestacada = -1
       return False, tag, False
-    RestaUmInterface.pecaDestacada = tag
+    GuiRestaUm.pecaDestacada = tag
 
-    if len(RestaUmInterface.jogada) == 0:
-      RestaUmInterface.jogada = f"{pecaSelecionada}"
+    if len(GuiRestaUm.jogada) == 0:
+      GuiRestaUm.jogada = f"{pecaSelecionada}"
       return False, removerDestaque, False
 
-    RestaUmInterface.jogada = f"{RestaUmInterface.jogada} {pecaSelecionada}"
-    meuTurno = not ct.enviarLance(RestaUmInterface.jogada)
+    GuiRestaUm.jogada = f"{GuiRestaUm.jogada} {pecaSelecionada}"
+    meuTurno = not ct.enviarLance(GuiRestaUm.jogada)
 
     if meuTurno:
-      RestaUmInterface.pecaDestacada = tag
-      RestaUmInterface.jogada = pecaSelecionada
+      GuiRestaUm.pecaDestacada = tag
+      GuiRestaUm.jogada = pecaSelecionada
       return False, removerDestaque, True
 
-    RestaUmInterface.jogada = ""
-    RestaUmInterface.pecaDestacada = -1
+    GuiRestaUm.jogada = ""
+    GuiRestaUm.pecaDestacada = -1
     return True, removerDestaque, False
 
   def fazJogada(self, x: int, y: int, tag: int):
     if self.cliTab.jogo.turno == 0:
       pecaID = self.canvas.itemcget(tag, 'image')[-1]
       if pecaID != '3':
-        reposicionar, rmDst, movErrado = RestaUmInterface.selecionaPeca(x, y, tag, self.cliTab)
-        if RestaUmInterface.pecaDestacada != -1:
-          self.canvas.itemconfigure(tag, image=RestaUmInterface.img_peca_high)
+        reposicionar, rmDst, movErrado = GuiRestaUm.selecionaPeca(x, y, tag, self.cliTab)
+        if GuiRestaUm.pecaDestacada != -1:
+          self.canvas.itemconfigure(tag, image=GuiRestaUm.img_peca_high)
         if rmDst != -1:
-          self.canvas.itemconfigure(rmDst, image=RestaUmInterface.img_peca)
+          self.canvas.itemconfigure(rmDst, image=GuiRestaUm.img_peca)
 
         if reposicionar:
           self.reposicionaPecas()
-          RestaUmInterface.reproduzSom('movimento')
+          GuiRestaUm.reproduzSom('movimento')
         if movErrado:
-          RestaUmInterface.reproduzSom('mov_erro')
+          GuiRestaUm.reproduzSom('mov_erro')
 
   def recebeJogadaAdversario(self):
     while True:
       print("esperando adversario")
-      recebeu = self.cliTab.receberLance()
-      if recebeu:
-        RestaUmInterface.meuTurno = True
-        self.reposicionaPecas()
-        RestaUmInterface.reproduzSom('movimento')
+      try:
+        recebeu = self.cliTab.receberLance()
+        if recebeu:
+          GuiRestaUm.meuTurno = True
+          self.reposicionaPecas()
+          GuiRestaUm.reproduzSom('movimento')
+      except:
+        print("nenhuma resposta obtida")
 
   def criaJanela(self):
     self.janela = Tk()
@@ -143,21 +146,22 @@ class RestaUmInterface:
       )
 
   def criaTabuleiro(self):
-    self.canvas = Canvas(self.janela, width=745, height=745)
+    self.canvas = Canvas(self.janela, width=800, height=800)
     self.canvas.place(x=0, y=0)
-    self.canvas.create_image(5,5, anchor=NW, image=RestaUmInterface.img_tabuleiro)
+    self.canvas.create_image(5,5, anchor=NW, image=GuiRestaUm.img_tabuleiro)
 
   def criaPecas(self):
     self.tagPecas = []
     for i in range(1, 8):
       linha = []
       for j in range(1, 8):
-        lin, col = 20 + ((i-1) * 100) + ((i-1) * 5), 20 + ((j-1) * 100) + ((j-1) * 5)
+        lin = 140 + ((i-1) * 64) + ((i-1) * 10)
+        col = 60 + ((j-1) * 80) + ((j-1) * 20)
         tagItem = -1
         if self.cliTab.jogo.tabuleiro[i][j] == '*':
-          tagItem = self.canvas.create_image(col, lin, anchor=NW, image=RestaUmInterface.img_peca)
+          tagItem = self.canvas.create_image(col, lin, anchor=NW, image=GuiRestaUm.img_peca)
         if self.cliTab.jogo.tabuleiro[i][j] == 'O':
-          tagItem = self.canvas.create_image(col, lin, anchor=NW, image=RestaUmInterface.img_vazio)
+          tagItem = self.canvas.create_image(col, lin, anchor=NW, image=GuiRestaUm.img_vazio)
         self.canvas.tag_bind(
           tagItem,
           "<Button-1>",
@@ -170,26 +174,12 @@ class RestaUmInterface:
     for i in range(1, 8):
       for j in range(1, 8):
         if self.cliTab.jogo.tabuleiro[i][j] == '*':
-          self.canvas.itemconfigure(self.tagPecas[i-1][j-1], image=RestaUmInterface.img_peca)
+          self.canvas.itemconfigure(self.tagPecas[i-1][j-1], image=GuiRestaUm.img_peca)
         if self.cliTab.jogo.tabuleiro[i][j] == 'O':
-          self.canvas.itemconfigure(self.tagPecas[i-1][j-1], image=RestaUmInterface.img_vazio)
+          self.canvas.itemconfigure(self.tagPecas[i-1][j-1], image=GuiRestaUm.img_vazio)
   
   def iniciaAplicacao(self):
     self.janela.mainloop()
-
-# Inicializando o socket do cliente do jogador
-ct = CliTabuleiroSocket(('localhost', 1234), ('localhost', 4321))
-
-# Inicializando o objeto que instanciará o jogo
-meuJogo = RestaUmInterface(ct)
-
-# Criando a thread que recebe a jogada do adversário via Socket
-thread_jogo = threading.Thread(target=meuJogo.recebeJogadaAdversario)
-thread_jogo.daemon = True
-thread_jogo.start()
-
-# Inicializando a aplicação grafica do jogo
-meuJogo.iniciaAplicacao()
 
 # feet = StringVar()
 # feet_entry = ttk.Entry(janela, width=7, textvariable=feet)
