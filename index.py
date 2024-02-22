@@ -11,10 +11,5 @@ if __name__ == "__main__":
   # Inicializando o objeto que instanciará o jogo
   meuJogo = GuiRestaUm(ct)
 
-  # Criando a thread que recebe a jogada do adversário via Socket
-  thread_jogo = threading.Thread(target=meuJogo.recebeJogadaAdversario)
-  thread_jogo.daemon = True
-  thread_jogo.start()
-
   # Inicializando a aplicação grafica do jogo
   meuJogo.iniciaAplicacao()
