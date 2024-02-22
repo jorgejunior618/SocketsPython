@@ -28,6 +28,7 @@ class JogoRestaUm:
         objeto que representa um novo tabuleiro com a posição inicial do jogo
 
     '''
+    self.turno = 0
     self.tabuleiro = []
     posicoes = 9
 
