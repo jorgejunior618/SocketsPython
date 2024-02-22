@@ -6,6 +6,7 @@ import threading
 from pygame import mixer
 
 from models.cli_tabuleiro import CliTabuleiroSocket
+from models.cli_chat import CliChatSocket
 
 class GuiRestaUm:
   ''' # RestaUmInterface
@@ -30,7 +31,7 @@ class GuiRestaUm:
   fim_jogo = None
   dictImgs = {}
 
-  def __init__(self, cli_tabuleiro: CliTabuleiroSocket):
+  def __init__(self, cli_tabuleiro: CliTabuleiroSocket, cli_chat: CliChatSocket):
     '''
     Inicializa a interface grafica do jogo
 
@@ -39,6 +40,7 @@ class GuiRestaUm:
         O cliente socket ja inicializado que será utilizado para a conexão multiplayer
     '''
     self.cliTab: CliTabuleiroSocket = cli_tabuleiro
+    self.cliChat: CliChatSocket = cli_chat
     self.cliTab.jogo.reiniciaTabuleiro()
     self.criaComponenteJanela()
     mixer.init()
@@ -58,6 +60,10 @@ class GuiRestaUm:
     self.criaComponenteEstilos()
     self.criaComponentePecas()
     self.criaComponenteTurnos()
+
+    self.mensagens = []
+    self.minhaMensagem = StringVar()
+    self.criaComponenteChat()
 
   @staticmethod
   def reproduzSom(efeito: str):
@@ -165,6 +171,17 @@ class GuiRestaUm:
         )
         linha.append(tagItem)
       self.tagPecas.append(linha[:])
+
+  def criaComponenteChat(self):
+    GuiRestaUm.inputChat = ttk.Entry(self.janela, textvariable=self.minhaMensagem, width=44)
+    GuiRestaUm.inputChat.place(x=820, y=763)
+    GuiRestaUm.botaoEnviarChat = ttk.Button(
+      self.janela,
+      text="Enviar",
+      command=self.chatEnviaMensagem,
+      padding=5
+    )
+    GuiRestaUm.botaoEnviarChat.place(x=1105, y=758)
 
   def desceFimDeJogo(self):
     GuiRestaUm.tagFimJogo = self.canvas.create_image(75,-520, anchor=NW, image=GuiRestaUm.fim_jogo)
@@ -311,10 +328,23 @@ class GuiRestaUm:
     self.canvas.moveto(GuiRestaUm.tagFimJogo, 75, -520)
 
     self.criaComponenteTurnos()
+  
+  def chatRecebeMensagem(self):
+    msg = self.cliChat.receber_mensagen()
+    self.mensagens.append(f"Adversário: {msg}")
+  
+  def chatEnviaMensagem(self):
+    msg = self.minhaMensagem.get()
+    self.mensagens.append(f"Você: {msg}")
+    self.minhaMensagem.set("")
+    self.cliChat.enviar_mensagem(msg)
 
   def iniciaAplicacao(self):
     # Criando a thread que recebe a escolha do turno do adversário via Socket
     thread_turno = threading.Thread(target=self.setTurnoAdversario, daemon=True)
     thread_turno.start()
+
+    thread_chat = threading.Thread(target=self.chatRecebeMensagem, daemon=True)
+    thread_chat.start()
 
     self.janela.mainloop()
