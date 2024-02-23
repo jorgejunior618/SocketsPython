@@ -1,35 +1,33 @@
 import threading
-from models.cli_tabuleiro import CliTabuleiroSocket
+from models.cli_chat import CliChatSocket
 
-def iniciaJogo():
-  # endereco_local = (input("IP local: "), int(input("Porta: ")))
-  endereco_local = ('localhost', int(input("Porta: ")))
-  # endereco_destino = (input("IP destino: "), int(input("Porta: ")))
-  endereco_destino = ('localhost', int(input("Porta: ")))
-
-  sockJogo = CliTabuleiroSocket(endereco_local, endereco_destino)
-
-  print(" Instruções:")
-  print(" - Caso você inicie a partida:")
-  print("     Digite \"1\" e seu adversário deverá digitar \"2\"")
-  print(" - Caso seu adversário inicie a partida:")
-  print("     Digite \"2\" e seu adversário deverá digitar \"1\"")
-
+def threadRecebimentoMensagens(cli: CliChatSocket):
   while True:
-    turnoLocal = sockJogo.definirTurno()
-    turnoAdversario = sockJogo.receberTurno()
+    try:
+      msg = cli.receber_mensagen()
+      print(f"\n[recebido]: {msg}", end="\n> ")
+    except:
+      print("[Rec. msg]: falha")
 
-    while turnoLocal == turnoAdversario:
-      print(" Defina com seu colega pelo chat quem irá iniciar a partida")
-      turnoLocal = sockJogo.definirTurno()
-      turnoAdversario = sockJogo.receberTurno()
-    
-    if turnoLocal == 1:
-      print("\n Você iniciará a partida\n")
-      sockJogo.iniciarJogador1()
-    else:
-      print("\n Aguarde o lance do seu adversário\n")
-      sockJogo.iniciarJogador2()
+def envioMensagens(cli: CliChatSocket):
+  while True:
+    msg = input(">")
+
+    try:
+      cli.enviar_mensagem(msg)
+    except:
+      print("[Env. msg]: falha")
+
+def iniciaChat():
+  endereco_local = ('localhost', 4321)
+  endereco_destino = ('localhost', 1234)
+
+  chat = CliChatSocket(endereco_local, endereco_destino)
+
+  thread_chat = threading.Thread(target=threadRecebimentoMensagens, args=(chat,))
+  thread_chat.daemon = True
+  thread_chat.start()
+  envioMensagens(chat)
 
 if __name__ == "__main__":
-  iniciaJogo()
+  iniciaChat()

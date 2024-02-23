@@ -1,17 +1,33 @@
 import threading
 from models.cli_chat import CliChatSocket
 
+def threadRecebimentoMensagens(cli: CliChatSocket):
+  while True:
+    try:
+      msg = cli.receber_mensagen()
+      print(f"\n[recebido]: {msg}", end="\n> ")
+    except:
+      print("[Rec. msg]: falha")
+
+def envioMensagens(cli: CliChatSocket):
+  while True:
+    msg = input(">")
+
+    try:
+      cli.enviar_mensagem(msg)
+    except:
+      print("[Env. msg]: falha")
+
 def iniciaChat():
   endereco_local = ('localhost', 54321)
   endereco_destino = ('localhost', 12345)
 
   chat = CliChatSocket(endereco_local, endereco_destino)
 
-  thread_chat = threading.Thread(target=chat.iniciar)
+  thread_chat = threading.Thread(target=threadRecebimentoMensagens, args=(chat,))
   thread_chat.daemon = True
   thread_chat.start()
-
-  thread_chat.join() # Caso a thread seja interrompida
+  envioMensagens(chat)
 
 if __name__ == "__main__":
   iniciaChat()
