@@ -44,6 +44,8 @@ class GuiRestaUm:
     self.cliTab.jogo.reiniciaTabuleiro()
     self.criaComponenteJanela()
     mixer.init()
+
+    GuiRestaUm.fonteText = font.Font(size=11, family="Trebuchet MS")
     GuiRestaUm.turnoVar = StringVar()
     GuiRestaUm.labelInfoTurno = ttk.Label(self.janela, textvariable=GuiRestaUm.turnoVar)
     GuiRestaUm.img_tabuleiro = PhotoImage(file="assets/tabuleiro.png")
@@ -60,8 +62,8 @@ class GuiRestaUm:
     self.criaComponenteEstilos()
     self.criaComponentePecas()
     self.criaComponenteTurnos()
-
-    self.mensagens = []
+    
+    self.mensagens: list[str] = []
     self.minhaMensagem = StringVar()
     self.criaComponenteChat()
 
@@ -97,6 +99,34 @@ class GuiRestaUm:
     tag: int,
     ct: CliTabuleiroSocket
   ) -> tuple[bool, int, bool]:
+    ''' # selecionaPeca
+
+    Função que gerencia o clique do usuário nas peças segundo a seguinte lógica:
+    - Se nenhuma peça estiver selecionada, seleciona a clicada
+    - Se uma peça estiver selecionada eseja um movimento válido, realiza o movimento
+    - Se uma peça estiver selecionada e o movimento inválido, seleciona a nova peça
+
+    ## Parâmetros:
+    x : int
+        indice da linha da peça
+
+    y : int
+        indice da coluna da peça
+
+    tag : int
+        identificador do componente da peça
+
+    ct : CliTabuleiroSocket
+        cli do socket de Jogo
+
+    ## Retorno:
+    r : tuple[reposicionar: bool , rmDst: int , movErrado: bool]
+        reposicionar: indica se o tabuleiro tem que ser re-renderizado
+
+        removeDestaque: indica o idnetificador que deve ser removido o destaque
+
+        movErrado: indica se o som de movimento errado deve ser reproduzido
+    '''
     posicaoJogada = ["","a", "b", "c", "d", "e", "f", "g",""]
     pecaSelecionada = f"{posicaoJogada[x]}{y}"
     removerDestaque = GuiRestaUm.pecaDestacada
@@ -124,41 +154,61 @@ class GuiRestaUm:
     return True, removerDestaque, False
 
   def criaComponenteJanela(self):
+    ''' # criaComponenteJanela
+
+    Função de criação de componentes: cria a janela raiz da interface gráfica
+    '''
     self.janela = Tk()
     self.janela.title("Resta um")
-    self.janela.geometry("1200x800")
+    self.janela.geometry("800x500")
+    self.janela.resizable(False, False)
 
   def criaComponenteEstilos(self):
+    ''' # criaComponenteEstilos
+
+    Função de criação de componentes: cria o estilo padrão para os botões da GUI
+    '''
     style = ttk.Style()
     style.configure(
-      "Peca.TButton",
-        padding=0,
-        relief="flat",
-        bg="#FFF",
-        border=0,
+      "Estilizado.TButton",
+        width=6,
+        font=GuiRestaUm.fonteText
       )
 
   def criaComponenteTabuleiro(self):
-    self.canvas = Canvas(self.janela, width=800, height=800)
+    ''' # criaComponenteTabuleiro
+
+    Função de criação de componentes: cria o canvas que receberá o tabuleiro e peças e posiciona as peças
+    '''
+    self.canvas = Canvas(self.janela, width=500, height=500)
     self.canvas.place(x=0, y=0)
     self.canvas.create_image(0,0, anchor=NW, image=GuiRestaUm.img_tabuleiro)
 
   def criaComponenteTurnos(self, texto: str = "Escolha seu turno"):
-    GuiRestaUm.botaoT1 = ttk.Button(self.janela, text="1º", command=lambda t=0: self._setTurno(t))
-    GuiRestaUm.botaoT2 = ttk.Button(self.janela, text="2º", command=lambda t=1: self._setTurno(t))
-    GuiRestaUm.labelDecTurno = ttk.Label(self.janela, text=texto)
+    ''' # criaComponenteTurnos
+
+    Função de criação de componentes: cria as labels e botões utilizados para decisão de turnos
+    '''
+    # fonteText = font.Font(size=11, family="Trebuchet MS")
+    GuiRestaUm.botaoT1 = ttk.Button(self.janela, text="1º", command=lambda t=0: self._setTurno(t), style="Estilizado.TButton")
+    GuiRestaUm.botaoT2 = ttk.Button(self.janela, text="2º", command=lambda t=1: self._setTurno(t), style="Estilizado.TButton")
+    GuiRestaUm.labelDecTurno = ttk.Label(self.janela, text=texto, font=GuiRestaUm.fonteText)
     
-    GuiRestaUm.botaoT1.place(x=850, y=45)
-    GuiRestaUm.botaoT2.place(x=950, y=45)
-    GuiRestaUm.labelDecTurno.place(x=850, y=15)
+    GuiRestaUm.botaoT1.place(x=520, y=45)
+    GuiRestaUm.botaoT2.place(x=590, y=45)
+    GuiRestaUm.labelDecTurno.place(x=520, y=15)
 
   def criaComponentePecas(self):
+    ''' # criaComponentePecas
+
+    Função de criação de componentes: cria e posiciona as peças no tabuleiro
+    '''
     self.tagPecas = []
     for i in range(1, 8):
       linha = []
       for j in range(1, 8):
-        lin = 140 + ((i-1) * 64) + ((i-1) * 10)
-        col = 60 + ((j-1) * 80) + ((j-1) * 20)
+        lin = 90 + ((i-1) * 40) + ((i-1) * 5)
+        col = 35 + ((j-1) * 50) + ((j-1) * 10)
         tagItem = -1
         if self.cliTab.jogo.tabuleiro[i][j] == '*':
           tagItem = self.canvas.create_image(col, lin, anchor=NW, image=GuiRestaUm.img_peca)
@@ -173,25 +223,58 @@ class GuiRestaUm:
       self.tagPecas.append(linha[:])
 
   def criaComponenteChat(self):
-    GuiRestaUm.inputChat = ttk.Entry(self.janela, textvariable=self.minhaMensagem, width=44)
-    GuiRestaUm.inputChat.place(x=820, y=763)
+    ''' # criaComponenteChat
+
+    Função de criação de componentes: cria a entrada e componentes do chat do jogo
+    '''
+    fonteChat = font.Font(size=11, family="Comic Sans MS")
+    GuiRestaUm.variavelMensagens = StringVar(value=self.mensagens)
+
+    GuiRestaUm.lboxMensagens = Listbox(
+      self.janela,
+      listvariable=GuiRestaUm.variavelMensagens,
+      height=12,
+      width=29,
+      font=fonteChat,
+      foreground="#7C3509"
+    )
+    GuiRestaUm.inputChat = ttk.Entry(
+      self.janela,
+      textvariable=self.minhaMensagem,
+      width=20,
+      font=fonteChat
+    )
     GuiRestaUm.botaoEnviarChat = ttk.Button(
       self.janela,
       text="Enviar",
       command=self.chatEnviaMensagem,
-      padding=5
+      width=8,
+      style="Estilizado.TButton"
     )
-    GuiRestaUm.botaoEnviarChat.place(x=1105, y=758)
 
-  def desceFimDeJogo(self):
-    GuiRestaUm.tagFimJogo = self.canvas.create_image(75,-520, anchor=NW, image=GuiRestaUm.fim_jogo)
+    GuiRestaUm.lboxMensagens.place(x=520, y=190)
+    GuiRestaUm.inputChat.place(x=520, y=460)
+    GuiRestaUm.botaoEnviarChat.place(x=715, y=457)
+
+    def enviaMsgEnter(kc):
+      if kc == 13: # Pressionou enter
+        self.chatEnviaMensagem()
+    GuiRestaUm.inputChat.bind("<Key>", lambda e: enviaMsgEnter(e.keycode))
+
+  def reproduzFimDeJogo(self):
+    ''' # reproduzFimDeJogo
+
+    Função que cria a thread que  de animação do componente da placa de fim de jogo
+    '''
+    if GuiRestaUm.tagFimJogo == None:
+      GuiRestaUm.tagFimJogo = self.canvas.create_image(75,-330, anchor=NW, image=GuiRestaUm.fim_jogo)
     def desce():
       cont = 0
       for i in range(104):
-        alturaAtual = i*5 - 520
+        alturaAtual = i*3.2 - 330
         balancoAtual = 0
         if GuiRestaUm.meuTurno == -1:
-          self.canvas.moveto(GuiRestaUm.tagFimJogo, 75, -520)
+          self.canvas.moveto(GuiRestaUm.tagFimJogo, 75, -330)
           break
         if cont < 20:
           balancoAtual = 0 - cont*2
@@ -204,28 +287,35 @@ class GuiRestaUm:
         else:
           balancoAtual = 210 - cont*2
 
-        self.canvas.moveto(GuiRestaUm.tagFimJogo, 75 + balancoAtual, alturaAtual)
+        self.canvas.moveto(GuiRestaUm.tagFimJogo, 35 + balancoAtual, alturaAtual)
         cont += 1
 
         time.sleep(0.025)
-        # time.sleep(0.025)
 
     thread_placa = threading.Thread(target=desce, daemon=True)
     thread_placa.start()
 
-  def recebeJogadaAdversario(self):
-    while True:
-      try:
-        recebeu = self.cliTab.receberLance()
-
-        if recebeu:
-          GuiRestaUm.reproduzSom('movimento')
-          self.reposicionaPecas()
-        else: break
-      except:
-        print("[Movimento]: nenhuma resposta obtida")
-
   def fazJogada(self, x: int, y: int, tag: int):
+    ''' # fazJogada
+
+    Função para ser utilizada no clique das peças do jogo, ativada apenas no turno do jogador,
+    identifica a posição selecionada e envia para a função `selecionaPeca` para realizar as funções
+    gráficas
+
+    ## Parâmetros:
+    x : int
+        indice da linha da peça
+
+    y : int
+        indice da coluna da peça
+
+    tag : int
+        identificador do componente da peça
+
+    ct : CliTabuleiroSocket
+        cli do socket de Jogo
+
+    '''
     if self.cliTab.jogo.turno == GuiRestaUm.meuTurno and GuiRestaUm.prontoPJogar:
       pecaID = self.canvas.itemcget(tag, 'image')[-1]
       if pecaID != GuiRestaUm.dictImgs['vazio']:
@@ -241,13 +331,39 @@ class GuiRestaUm:
         if movErrado:
           GuiRestaUm.reproduzSom('mov_erro')
 
+  def recebeJogadaAdversario(self):
+    ''' # recebeJogadaAdversario
+
+    Função para ser inicializada por execução de Threads que controla o recebimento de lances do adversário
+    e para quando é dado o sinal de fim de jogo
+    '''
+    while True:
+      try:
+        recebeu = self.cliTab.receberLance()
+
+        if recebeu:
+          GuiRestaUm.reproduzSom('movimento')
+          self.reposicionaPecas()
+        else: break
+      except:
+        print("[Movimento]: nenhuma resposta obtida")
+
   def setTurnoAdversario(self):
+    ''' # setTurnoAdversario
+
+    Função para ser inicializada por execução de Threads que controla o recebimento da decisão
+    de turno feita pelo adversário
+
+    Aguarda até receber a mensagem e até o usuário local realizar a sua decisão, e caso as
+    respostas entrem em conflito, reposiciona os componentes de decisão de turno
+    '''
     while True:
       try:
         turnoAdv = self.cliTab.receberTurno()
-        print(f"escolha do adv: {turnoAdv}")
         while GuiRestaUm.meuTurno == -1:
           time.sleep(0.5)
+
+        GuiRestaUm.turnoVar.set("")
         if turnoAdv != GuiRestaUm.meuTurno:
           GuiRestaUm.prontoPJogar = True
           if GuiRestaUm.meuTurno == 0:
@@ -259,11 +375,21 @@ class GuiRestaUm:
           break
         else:
           GuiRestaUm.meuTurno = -1
-          self.criaComponenteTurnos(texto="Conflito na resposta, tentem novamente")
+          self.criaComponenteTurnos(texto="Conflito, tentem novamente")
       except:
         print("[Turno]: nenhuma resposta obtida")
 
   def _setTurno(self, t: int):
+    ''' # _setTurno
+
+    Função dos botões de decisão de turno que define o desejo do usuário local de iniciar ou não a partida
+    e envia para o adversário para verificação
+
+    ## Parâmetro
+    
+    t : int (0 or 1)
+        0 se o usuario local quiser iniciar a partida, ou 1 caso contrário
+    '''
     GuiRestaUm.meuTurno = t
     self.cliTab.definirTurno(f"{t}")
     GuiRestaUm.botaoT1.destroy()
@@ -271,10 +397,14 @@ class GuiRestaUm:
     GuiRestaUm.labelDecTurno.destroy()
 
     GuiRestaUm.turnoVar.set("Aguardando resposta do seu adversário")
-    GuiRestaUm.labelInfoTurno = ttk.Label(self.janela, textvariable=GuiRestaUm.turnoVar)
-    GuiRestaUm.labelInfoTurno.place(x=850, y=15)
+    GuiRestaUm.labelInfoTurno = ttk.Label(self.janela, textvariable=GuiRestaUm.turnoVar, font=GuiRestaUm.fonteText)
+    GuiRestaUm.labelInfoTurno.place(x=520, y=15)
 
   def reposicionaPecas(self):
+    ''' # reposicionaPecas
+
+    Função para realizar a re-renderização da posição das peças no tabuleiro
+    '''
     for i in range(1, 8):
       for j in range(1, 8):
         if self.cliTab.jogo.tabuleiro[i][j] == '*':
@@ -289,9 +419,17 @@ class GuiRestaUm:
     self.checaFimDeJogo()
 
   def checaFimDeJogo(self):
+    ''' # checaFimDeJogo
+
+    Função que verifica se o jogo finalizou, se restou apenas uma peça, e se o usuário
+    local venceu ou perdeu a partida
+
+    Em caso de termino da partida, mostra o resultado em tela, inicia a animação de
+    fim de jogo e adiciona a opção de jogar novamente
+    '''
     terminou, contPecas = self.cliTab.jogo.estaNoFim()
     if terminou:
-      self.desceFimDeJogo()
+      self.reproduzFimDeJogo()
       GuiRestaUm.prontoPJogar = False
       self.cliTab.enviarLance("fim")
 
@@ -300,21 +438,33 @@ class GuiRestaUm:
         vencedor = self.cliTab.jogo.turno == GuiRestaUm.meuTurno
       else:
         vencedor = self.cliTab.jogo.turno != GuiRestaUm.meuTurno
-      fonteResultado = font.Font(size=25, weight="bold")
+      fonteResultado = font.Font(size=18, weight="bold")
 
       if vencedor:
         GuiRestaUm.labelInfoResultado = ttk.Label(self.janela,text="  Parabéns!\nVocê venceu",font=fonteResultado)
-        GuiRestaUm.labelInfoResultado.place(x=830, y=15)
+        GuiRestaUm.labelInfoResultado.place(x=520, y=15)
         self.reproduzSom("vitoria")
       else:
         GuiRestaUm.labelInfoResultado = ttk.Label(self.janela,text="  Você perdeu :(\nTalvez na Proxima",font=fonteResultado)
-        GuiRestaUm.labelInfoResultado.place(x=830, y=15)
+        GuiRestaUm.labelInfoResultado.place(x=520, y=15)
         self.reproduzSom("derrota")
 
-      GuiRestaUm.botaoResetaJogo = ttk.Button(self.janela, text="Novo Jogo", command=self.resetaJogo)
-      GuiRestaUm.botaoResetaJogo.place(x=850, y=115)
+      GuiRestaUm.botaoResetaJogo = ttk.Button(
+        self.janela,
+        text="Novo Jogo",
+        command=self.resetaJogo,
+        style="Estilizado.TButton",
+        width=10
+      )
+      GuiRestaUm.botaoResetaJogo.place(x=530, y=80)
 
   def resetaJogo(self):
+    ''' # resetaJogo
+
+    Função que limpa os componentes de resultado do jogo finalizado, reinicia a
+    Thread de escolha de turnos, interrompe a Thread de animação de Fim de Jogo,
+    reposiciona e renderiza as peças do tabuleiro e chama a função `criaComponenteTurnos`
+    '''
     thread_turno = threading.Thread(target=self.setTurnoAdversario, daemon=True)
     thread_turno.start()
 
@@ -325,25 +475,78 @@ class GuiRestaUm:
     GuiRestaUm.turnoVar.set("")
     GuiRestaUm.labelInfoResultado.destroy()
     GuiRestaUm.botaoResetaJogo.destroy()
-    self.canvas.moveto(GuiRestaUm.tagFimJogo, 75, -520)
+    self.canvas.moveto(GuiRestaUm.tagFimJogo, 75, -330)
 
     self.criaComponenteTurnos()
   
+  def addMensagem(self,identificador: str, msg: str):
+    ''' # addMensagem
+
+    Função que recebe uma nova mensagem registrada e a renderiza no componente
+    da conversa do chat
+
+    ## Parâmetros:
+    
+    identificador : str
+        Identifica se a mensagem é do usuário local ou do adversário
+    msg : str
+        O texto da mensagem a ser exibida
+    '''
+    self.mensagens.append(f"{identificador}: {msg}")
+    qtdMsg = len(self.mensagens) # 4
+    lm = list(reversed(self.mensagens))
+    mensagens: list[str] = []
+    for i in range(11, -1, -1):
+      if qtdMsg > i:
+        mensagens.append(lm[i])
+      else :
+        mensagens.append("")
+    GuiRestaUm.variavelMensagens.set(mensagens)
+    if qtdMsg > 12:
+      qtdMsg = 12
+    for i in range(11, 11-qtdMsg, -1):
+      if mensagens[i].startswith("Voc"):
+        GuiRestaUm.lboxMensagens.itemconfigure(i, background='#F0F0FF')
+      else:
+        GuiRestaUm.lboxMensagens.itemconfigure(i, background='#FFF')
+
   def chatRecebeMensagem(self):
-    msg = self.cliChat.receber_mensagen()
-    self.mensagens.append(f"Adversário: {msg}")
-  
+    ''' # chatRecebeMensagem
+
+    Função para ser inicializada por execução de Threads que controla o recebimento de
+    mensagens do chat entre os usuários
+    '''
+    while True:
+      try:
+        msg = self.cliChat.receber_mensagen()
+        self.addMensagem("Adversário", msg)
+      except:
+        print("[Rec. msg]: nenhuma resposta obtida")
+
   def chatEnviaMensagem(self):
-    msg = self.minhaMensagem.get()
-    self.mensagens.append(f"Você: {msg}")
-    self.minhaMensagem.set("")
-    self.cliChat.enviar_mensagem(msg)
+    ''' # chatEnviaMensagem
+
+    Função que captura o texto digitado pelo usuário e envia para o adversário
+    '''
+    try:
+      msg = self.minhaMensagem.get()
+      if len(msg) > 0:
+        self.addMensagem("Você", msg)
+        self.minhaMensagem.set("")
+        self.cliChat.enviar_mensagem(msg)
+    except:
+      print("[Env. Msg.]: nenhuma resposta obtida")
 
   def iniciaAplicacao(self):
+    '''# iniciaAplicacao
+    Inicia as Threads de recebimento de decisão de turnos do Jogo e de
+    recebimento de mensagens do chat, e inicializa a interface gráfica
+    '''
     # Criando a thread que recebe a escolha do turno do adversário via Socket
     thread_turno = threading.Thread(target=self.setTurnoAdversario, daemon=True)
     thread_turno.start()
 
+    # Criando a thread que recebe as mensagens do adversário via Socket
     thread_chat = threading.Thread(target=self.chatRecebeMensagem, daemon=True)
     thread_chat.start()
 
