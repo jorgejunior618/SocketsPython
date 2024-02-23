@@ -1,5 +1,5 @@
 import socket
-import rascunho.resta_um_terminal as r1
+import models.resta_um as r1
 
 class CliTabuleiroSocket:
   '''## class TabuleiroSocket
