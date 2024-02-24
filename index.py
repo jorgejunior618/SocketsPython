@@ -6,24 +6,27 @@ from gui_define_ip import GuiDefineAdversario
 
 def mainApp():
   # Inicializando o socket do cliente do jogador
+  print("Se tento criar um executavel sem esse console,")
+  print("o arquivo é acusado como virus")
+  print(";-;")
+
   iph = IPHelper()
   gdefAdv = GuiDefineAdversario(iph)
   gdefAdv.iniciaAplicacao()
   if iph.ipAdversario == None:
     return None
   
-  print("CliJogo: ",iph.defineEnderecoLocalJogo(),iph.defineEnderecoAdversarioJogo(),)
-  print("CliChat: ",iph.defineEnderecoLocalChat(),iph.defineEnderecoAdversarioChat(),)
-
   ct = CliTabuleiroSocket(iph.defineEnderecoLocalJogo(), iph.defineEnderecoAdversarioJogo())
   cc = CliChatSocket(iph.defineEnderecoLocalChat(), iph.defineEnderecoAdversarioChat())
 
   # Inicializando o objeto que instanciará o jogo
-  meuJogo = GuiRestaUm(ct, cc)
+  try:
+    meuJogo = GuiRestaUm(ct, cc)
+  except Exception as e:
+    print(e)
 
   # Inicializando a aplicação grafica do jogo
   meuJogo.iniciaAplicacao()
-
 
 if __name__ == "__main__":
   mainApp()
