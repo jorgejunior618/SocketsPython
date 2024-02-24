@@ -3,12 +3,6 @@ class JogoRestaUm:
     self.tabuleiro = []
     self.turno = 0
 
-  def imprimeTabuleiro(self):
-    linhas = ["","a", "b", "c", "d", "e", "f", "g",""]
-    print("   "," ".join(["1","2","3","4","5","6","7"]))
-    for i in range(9):
-      print(linhas[i], " ".join(self.tabuleiro[i]))
-
   def reiniciaTabuleiro(self) -> list[list[str]]:
     '''# recebeMovimento
     Função que retorna um novo tabuleiro de Resta Um

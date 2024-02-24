@@ -39,7 +39,6 @@ class CliTabuleiroSocket:
     _, destino = self.jogo.movimentoValido(mover, retirar)
     self.jogo.fazMovimento(mover, retirar, destino)
     return True
-    # self.jogo.imprimeTabuleiro()
 
   def enviarLance(self, movimento: str) -> bool:
     '''## enviar_lance()
