@@ -1,4 +1,4 @@
-import socket
+from socket import socket, AF_INET, SOCK_DGRAM
 
 class CliChatSocket:
   '''## class ChatSocket
@@ -12,7 +12,7 @@ class CliChatSocket:
   '''
   def __init__(self, endereco_local: tuple[str, int], endereco_destino: tuple[str, int]):
     self.endereco_destino = endereco_destino
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.sock = socket(AF_INET, SOCK_DGRAM)
     self.sock.bind(endereco_local)
 
   def receber_mensagen(self) -> str:

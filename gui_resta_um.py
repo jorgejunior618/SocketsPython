@@ -1,8 +1,8 @@
-from tkinter import *
-from tkinter import font
-from tkinter import ttk
-import time
-import threading
+from tkinter import Tk, StringVar, NW, PhotoImage, Canvas, Listbox
+from tkinter.font import Font
+from tkinter.ttk import Style, Button, Label, Entry
+from time import sleep
+from threading import Thread
 from pygame import mixer
 
 from models.cli_tabuleiro import CliTabuleiroSocket
@@ -22,7 +22,7 @@ class GuiRestaUm:
   meuTurno = -1
   prontoPJogar = False
   turnoVar: StringVar = None
-  labelInfoTurno: ttk.Label = None
+  labelInfoTurno: Label = None
   tagFimJogo = None
   img_tabuleiro = None
   img_peca = None
@@ -45,9 +45,9 @@ class GuiRestaUm:
     self.criaComponenteJanela()
     mixer.init()
 
-    GuiRestaUm.fonteText = font.Font(size=11, family="Trebuchet MS")
+    GuiRestaUm.fonteText = Font(size=11, family="Trebuchet MS")
     GuiRestaUm.turnoVar = StringVar()
-    GuiRestaUm.labelInfoTurno = ttk.Label(self.janela, textvariable=GuiRestaUm.turnoVar)
+    GuiRestaUm.labelInfoTurno = Label(self.janela, textvariable=GuiRestaUm.turnoVar)
     GuiRestaUm.img_tabuleiro = PhotoImage(file="assets/tabuleiro.png")
     GuiRestaUm.img_peca = PhotoImage(file="assets/peca.png")
     GuiRestaUm.img_vazio = PhotoImage(file="assets/vazio.png")
@@ -168,7 +168,7 @@ class GuiRestaUm:
 
     Função de criação de componentes: cria o estilo padrão para os botões da GUI
     '''
-    style = ttk.Style()
+    style = Style()
     style.configure(
       "Estilizado.TButton",
         width=6,
@@ -189,10 +189,10 @@ class GuiRestaUm:
 
     Função de criação de componentes: cria as labels e botões utilizados para decisão de turnos
     '''
-    # fonteText = font.Font(size=11, family="Trebuchet MS")
-    GuiRestaUm.botaoT1 = ttk.Button(self.janela, text="1º", command=lambda t=0: self._setTurno(t), style="Estilizado.TButton")
-    GuiRestaUm.botaoT2 = ttk.Button(self.janela, text="2º", command=lambda t=1: self._setTurno(t), style="Estilizado.TButton")
-    GuiRestaUm.labelDecTurno = ttk.Label(self.janela, text=texto, font=GuiRestaUm.fonteText)
+    # fonteText = Font(size=11, family="Trebuchet MS")
+    GuiRestaUm.botaoT1 = Button(self.janela, text="1º", command=lambda t=0: self._setTurno(t), style="Estilizado.TButton")
+    GuiRestaUm.botaoT2 = Button(self.janela, text="2º", command=lambda t=1: self._setTurno(t), style="Estilizado.TButton")
+    GuiRestaUm.labelDecTurno = Label(self.janela, text=texto, font=GuiRestaUm.fonteText)
     
     GuiRestaUm.botaoT1.place(x=520, y=45)
     GuiRestaUm.botaoT2.place(x=590, y=45)
@@ -227,7 +227,7 @@ class GuiRestaUm:
 
     Função de criação de componentes: cria a entrada e componentes do chat do jogo
     '''
-    fonteChat = font.Font(size=11, family="Comic Sans MS")
+    fonteChat = Font(size=11, family="Comic Sans MS")
     GuiRestaUm.variavelMensagens = StringVar(value=self.mensagens)
 
     GuiRestaUm.lboxMensagens = Listbox(
@@ -238,13 +238,13 @@ class GuiRestaUm:
       font=fonteChat,
       foreground="#7C3509"
     )
-    GuiRestaUm.inputChat = ttk.Entry(
+    GuiRestaUm.inputChat = Entry(
       self.janela,
       textvariable=self.minhaMensagem,
       width=20,
       font=fonteChat
     )
-    GuiRestaUm.botaoEnviarChat = ttk.Button(
+    GuiRestaUm.botaoEnviarChat = Button(
       self.janela,
       text="Enviar",
       command=self.chatEnviaMensagem,
@@ -290,9 +290,9 @@ class GuiRestaUm:
         self.canvas.moveto(GuiRestaUm.tagFimJogo, 35 + balancoAtual, alturaAtual)
         cont += 1
 
-        time.sleep(0.025)
+        sleep(0.025)
 
-    thread_placa = threading.Thread(target=desce, daemon=True)
+    thread_placa = Thread(target=desce, daemon=True)
     thread_placa.start()
 
   def fazJogada(self, x: int, y: int, tag: int):
@@ -361,7 +361,7 @@ class GuiRestaUm:
       try:
         turnoAdv = self.cliTab.receberTurno()
         while GuiRestaUm.meuTurno == -1:
-          time.sleep(0.5)
+          sleep(0.5)
 
         GuiRestaUm.turnoVar.set("")
         if turnoAdv != GuiRestaUm.meuTurno:
@@ -370,7 +370,7 @@ class GuiRestaUm:
             GuiRestaUm.turnoVar.set("Você inicia a partida")
           elif GuiRestaUm.meuTurno == 1:
             GuiRestaUm.turnoVar.set("Seu adversario iniciará a partida")
-          thread_jogo = threading.Thread(target=self.recebeJogadaAdversario, daemon=True)
+          thread_jogo = Thread(target=self.recebeJogadaAdversario, daemon=True)
           thread_jogo.start()
           break
         else:
@@ -397,7 +397,7 @@ class GuiRestaUm:
     GuiRestaUm.labelDecTurno.destroy()
 
     GuiRestaUm.turnoVar.set("Aguardando resposta do seu adversário")
-    GuiRestaUm.labelInfoTurno = ttk.Label(self.janela, textvariable=GuiRestaUm.turnoVar, font=GuiRestaUm.fonteText)
+    GuiRestaUm.labelInfoTurno = Label(self.janela, textvariable=GuiRestaUm.turnoVar, font=GuiRestaUm.fonteText)
     GuiRestaUm.labelInfoTurno.place(x=520, y=15)
 
   def reposicionaPecas(self):
@@ -438,18 +438,18 @@ class GuiRestaUm:
         vencedor = self.cliTab.jogo.turno == GuiRestaUm.meuTurno
       else:
         vencedor = self.cliTab.jogo.turno != GuiRestaUm.meuTurno
-      fonteResultado = font.Font(size=18, weight="bold")
+      fonteResultado = Font(size=18, weight="bold")
 
       if vencedor:
-        GuiRestaUm.labelInfoResultado = ttk.Label(self.janela,text="  Parabéns!\nVocê venceu",font=fonteResultado)
+        GuiRestaUm.labelInfoResultado = Label(self.janela,text="  Parabéns!\nVocê venceu",font=fonteResultado)
         GuiRestaUm.labelInfoResultado.place(x=520, y=15)
         self.reproduzSom("vitoria")
       else:
-        GuiRestaUm.labelInfoResultado = ttk.Label(self.janela,text="  Você perdeu :(\nTalvez na Proxima",font=fonteResultado)
+        GuiRestaUm.labelInfoResultado = Label(self.janela,text="  Você perdeu :(\nTalvez na Proxima",font=fonteResultado)
         GuiRestaUm.labelInfoResultado.place(x=520, y=15)
         self.reproduzSom("derrota")
 
-      GuiRestaUm.botaoResetaJogo = ttk.Button(
+      GuiRestaUm.botaoResetaJogo = Button(
         self.janela,
         text="Novo Jogo",
         command=self.resetaJogo,
@@ -465,7 +465,7 @@ class GuiRestaUm:
     Thread de escolha de turnos, interrompe a Thread de animação de Fim de Jogo,
     reposiciona e renderiza as peças do tabuleiro e chama a função `criaComponenteTurnos`
     '''
-    thread_turno = threading.Thread(target=self.setTurnoAdversario, daemon=True)
+    thread_turno = Thread(target=self.setTurnoAdversario, daemon=True)
     thread_turno.start()
 
     GuiRestaUm.meuTurno = -1
@@ -543,11 +543,11 @@ class GuiRestaUm:
     recebimento de mensagens do chat, e inicializa a interface gráfica
     '''
     # Criando a thread que recebe a escolha do turno do adversário via Socket
-    thread_turno = threading.Thread(target=self.setTurnoAdversario, daemon=True)
+    thread_turno = Thread(target=self.setTurnoAdversario, daemon=True)
     thread_turno.start()
 
     # Criando a thread que recebe as mensagens do adversário via Socket
-    thread_chat = threading.Thread(target=self.chatRecebeMensagem, daemon=True)
+    thread_chat = Thread(target=self.chatRecebeMensagem, daemon=True)
     thread_chat.start()
 
     self.janela.mainloop()

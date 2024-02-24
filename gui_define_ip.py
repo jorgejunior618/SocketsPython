@@ -1,7 +1,6 @@
-from tkinter import *
-from tkinter import font
-from tkinter import ttk
-import threading
+from tkinter import Tk, StringVar
+from tkinter.font import Font
+from tkinter.ttk import Style, Button, Label, Entry
 from ip_helper import IPHelper
 
 class GuiDefineAdversario:
@@ -43,10 +42,10 @@ class GuiDefineAdversario:
 
     Função de criação de componentes: cria o estilo padrão para os botões da GUI
     '''
-    self.fonteGeral = font.Font(size=12, family="Trebuchet MS")
-    self.fonteErro = font.Font(size=9, family="Trebuchet MS")
+    self.fonteGeral = Font(size=12, family="Trebuchet MS")
+    self.fonteErro = Font(size=9, family="Trebuchet MS")
 
-    style = ttk.Style()
+    style = Style()
     style.configure(
       "Estilizado.TButton",
         width=6,
@@ -61,11 +60,11 @@ class GuiDefineAdversario:
     self.varIP = StringVar()
     self.varValidadeIP = StringVar()
 
-    ttk.Label(self.janela, text="Digite o IP do seu adversário:", font=self.fonteGeral).place(x=20, y=20)
+    Label(self.janela, text="Digite o IP do seu adversário:", font=self.fonteGeral).place(x=20, y=20)
 
-    self.inputIP = ttk.Entry(self.janela, textvariable=self.varIP, width=16, font=self.fonteGeral)
-    self.botVerifIP = ttk.Button(self.janela, text="Enviar", command=self.recebeEnderecoIP, style="Estilizado.TButton")
-    self.labelIPValido = ttk.Label(self.janela, textvariable=self.varValidadeIP, font=self.fonteErro, foreground="#F03131")
+    self.inputIP = Entry(self.janela, textvariable=self.varIP, width=16, font=self.fonteGeral)
+    self.botVerifIP = Button(self.janela, text="Enviar", command=self.recebeEnderecoIP, style="Estilizado.TButton")
+    self.labelIPValido = Label(self.janela, textvariable=self.varValidadeIP, font=self.fonteErro, foreground="#F03131")
 
     self.inputIP.place(x=20, y=52)
     self.botVerifIP.place(x=170, y=50)

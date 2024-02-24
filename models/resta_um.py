@@ -1,13 +1,3 @@
-# Funções de interface de terminal
-def instrucoes():
-  print("Instruções para jogar:")
-  print("  Digite a linha junto da coluna da peça que deseja mover")
-  print("  Digite a linha junto da coluna da peça que deseja retirar")
-  print("  - Ex. c4 d4\n")
-  print("  O resultado do jogo é decidido segundo as seguintes regras:")
-  print("  - Vence quem fizer o movimento que deixa apenas uma peça no tabuleiro")
-  print("  - Caso não haja mais movimentos válidos, o último a ter feito um movimento perde")
-
 class JogoRestaUm:
   def __init__(self):
     self.tabuleiro = []
@@ -185,58 +175,3 @@ class JogoRestaUm:
     retirar[0] = indiceLinha[retirar[0]]
     retirar[1] = int(retirar[1])
     return mover, retirar
-
-def recebeMovimentoTerminal() -> list[list[int]]:
-  '''# recebeMovimento
-  Função que recebe o input do usuário e retorna os indices indicados
-
-  ## Retorna:
-  mover : list[int]
-      indice da peça que será movida de posição
-  retirar : list[int]
-      indice da peça que será removida do tabuleiro
-  '''
-
-  movimento = input()
-  indiceLinha = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6, "g": 7}
-  mover, retirar = movimento.split(' ')
-
-  mover = [*mover]
-  mover[0] = indiceLinha[mover[0]]
-  mover[1] = int(mover[1])
-
-  retirar = [*retirar]
-  retirar[0] = indiceLinha[retirar[0]]
-  retirar[1] = int(retirar[1])
-  return mover, retirar
-
-# def iniciaJogo():
-#   turno = 1
-#   tabuleiro = reiniciaTabuleiro()
-
-#   instrucoes()
-#   fimDeJogo, contagem = estaNoFim(tabuleiro)
-#   while not fimDeJogo:
-#     turno = 1 - turno
-#     imprimeTabuleiro(tabuleiro)
-#     print(f"Vez do Jogador {turno + 1}, Faça um movimento")
-#     mover, retirar = recebeMovimentoTerminal()
-#     valido, destino = movimentoValido(mover, retirar, tabuleiro)
-#     while not valido:
-#       print("Movimento inválido, tente novamente")
-#       mover, retirar = recebeMovimentoTerminal()
-#       valido, destino = movimentoValido(mover, retirar, tabuleiro)
-
-#     tabuleiro = fazMovimento(mover, retirar, destino, tabuleiro)
-#     fimDeJogo, contagem = estaNoFim(tabuleiro)
-#   print("\nFim de jogo!\n")
-#   imprimeTabuleiro(tabuleiro)
-#   if contagem > 1:
-#     print(f"\nPeças restantes: {contagem}")
-#     print(f"O vencedor é do jogador {2 - turno}\n")
-#   else:
-#     print(f"Parabens restou {contagem}!")
-#     print(f"O vencedor é do jogador {turno + 1}\n")
-
-# if __name__ == "__main__":
-#   iniciaJogo()

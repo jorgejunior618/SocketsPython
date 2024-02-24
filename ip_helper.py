@@ -1,8 +1,8 @@
-import socket
+from socket import gethostname, gethostbyname
 
 class IPHelper:
   def __init__(self) -> None:
-    self.ipLocal = socket.gethostbyname(socket.gethostname())
+    self.ipLocal = gethostbyname(gethostname())
     self.portaChat: int = 4321
     self.portaJogo: int = 1234
     self.ipAdversario: str = None

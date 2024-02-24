@@ -1,4 +1,4 @@
-import socket
+from socket import socket, AF_INET, SOCK_DGRAM
 import models.resta_um as r1
 
 class CliTabuleiroSocket:
@@ -15,7 +15,7 @@ class CliTabuleiroSocket:
   def __init__(self, endereco_local: tuple[str, int], endereco_destino: tuple[str, int]):
     self.jogo = r1.JogoRestaUm()
     self.endereco_destino = endereco_destino
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.sock = socket(AF_INET, SOCK_DGRAM)
     self.sock.bind(endereco_local)
 
   def receberTurno(self):
