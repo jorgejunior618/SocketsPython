@@ -1,5 +1,4 @@
 import socket
-import threading
 
 class CliChatSocket:
   '''## class ChatSocket

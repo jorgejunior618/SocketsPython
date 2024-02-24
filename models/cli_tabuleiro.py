@@ -2,10 +2,10 @@ import socket
 import models.resta_um as r1
 
 class CliTabuleiroSocket:
-  '''## class TabuleiroSocket
+  '''# class TabuleiroSocket
   Classe com a implementação dos sockets para a comunicação em texto, e as threads de envio e recebimento das mensagens
 
-  ### Parametros
+  ## Parâmetros:
   endereco_local : tuple[str, int]
       tupla contendo a string que representa o IP da maquina atual, e a porta que receberá a comunicação
   endereco_destino : tuple[str, int]
@@ -35,7 +35,6 @@ class CliTabuleiroSocket:
     if movimento == "fim":
       return False
 
-    print(f"\n [adversário]: {movimento}")
     mover, retirar = self.jogo.recebeMovimento(movimento)
     _, destino = self.jogo.movimentoValido(mover, retirar)
     self.jogo.fazMovimento(mover, retirar, destino)
