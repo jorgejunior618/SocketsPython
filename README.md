@@ -22,9 +22,10 @@ Use o chat para decidir com o adversário que irá iniciar o jogo, e segundo o u
 Após decidirem quem irá iniciar a partida, as peças do tabuleiro estarão disponíveis para a pessoa do turno atual realizar a jogada.
 Para jogar clique na peça que voce deseja movimentar, ela será selecionada (caso queira remover a seleção basta clicar novamente na mesma peça), em seguida clique na peça que deseja remover.
 O turno só será passado para o próximo quando uma jogada válida for realizada.
-
-<img src="demo/tabuleiro_2.jpg" alt="Tabuleiro com uma peça selecionada" title="ANTes que reste uma - Jogo Multiplayer" width=350/>
-<img src="demo/tabuleiro_3.jpg" alt="Tabuleiro após uma jogada ser realizada" title="ANTes que reste uma - Jogo Multiplayer" width=350/>
+<div style="disply: flex;">
+  <img src="demo/tabuleiro_2.jpg" alt="Tabuleiro com uma peça selecionada" title="ANTes que reste uma - Jogo Multiplayer" width=350/>
+  <img src="demo/tabuleiro_3.jpg" alt="Tabuleiro após uma jogada ser realizada" title="ANTes que reste uma - Jogo Multiplayer" width=350/>
+</div>
 
 ### Fim de Jogo
 O jogo acaba quando resta apenas uma peça no tabuleiro, ou quando não é ais possivel realizar jogadas. Ao clicar no botão "Novo Jogo" a fase de decisão de turnos será iniciada novamente para iniciar uma nova partida.
