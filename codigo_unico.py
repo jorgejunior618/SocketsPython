@@ -949,14 +949,19 @@ class GuiRestaUm:
       fonteResultado = Font(size=18, weight="bold")
 
       if vencedor:
-        GuiRestaUm.labelInfoResultado = Label(self.janela,text="  Parabéns!\nVocê venceu",font=fonteResultado)
-        GuiRestaUm.labelInfoResultado.place(x=520, y=15)
+        if contPecas == 1:
+          GuiRestaUm.labelInfoResultado = Label(self.janela,text="Parabéns, você venceu!\n         Restou Um!",font=fonteResultado)
+        else:
+          GuiRestaUm.labelInfoResultado = Label(self.janela,text=f"Fim de movimentos\n     Você venceu!\n      Restaram {contPecas}",font=fonteResultado)
         self.reproduzSom("vitoria")
       else:
-        GuiRestaUm.labelInfoResultado = Label(self.janela,text="  Você perdeu :(\nTalvez na Proxima",font=fonteResultado)
-        GuiRestaUm.labelInfoResultado.place(x=520, y=15)
+        if contPecas == 1:
+          GuiRestaUm.labelInfoResultado = Label(self.janela,text="Você perdeu :(\n   Restou Um  ",font=fonteResultado)
+        else:
+          GuiRestaUm.labelInfoResultado = Label(self.janela,text=f"Fim de movimentos\n    Você perdeu :(  \n      Restaram {contPecas}",font=fonteResultado)
         self.reproduzSom("derrota")
 
+      GuiRestaUm.labelInfoResultado.place(x=650, y=65, anchor="center")
       GuiRestaUm.botaoResetaJogo = Button(
         self.janela,
         text="Novo Jogo",
@@ -964,7 +969,7 @@ class GuiRestaUm:
         style="Estilizado.TButton",
         width=10
       )
-      GuiRestaUm.botaoResetaJogo.place(x=530, y=80)
+      GuiRestaUm.botaoResetaJogo.place(x=650, y=150, anchor="center")
 
   def resetaJogo(self):
     ''' # resetaJogo
