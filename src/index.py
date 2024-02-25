@@ -16,8 +16,8 @@ def mainApp():
   if iph.ipAdversario == None:
     return None
   
-  ct = CliTabuleiroSocket(iph.defineEnderecoLocalJogo(), iph.defineEnderecoAdversarioJogo())
-  cc = CliChatSocket(iph.defineEnderecoLocalChat(), iph.defineEnderecoAdversarioChat())
+  ct = CliTabuleiroSocket(iph.obterEnderecoLocalJogo(), iph.obterEnderecoAdversarioJogo())
+  cc = CliChatSocket(iph.obterEnderecoLocalChat(), iph.obterEnderecoAdversarioChat())
 
   # Inicializando o objeto que instanciará o jogo
   try:

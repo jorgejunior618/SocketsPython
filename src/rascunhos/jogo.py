@@ -4,7 +4,7 @@ from models.cli_chat import CliChatSocket
 def threadRecebimentoMensagens(cli: CliChatSocket):
   while True:
     try:
-      msg = cli.receber_mensagen()
+      msg = cli.receber_mensagem()
       print(f"\n[recebido]: {msg}", end="\n> ")
     except:
       print("[Rec. msg]: falha")

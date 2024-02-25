@@ -19,29 +19,43 @@ from pygame import mixer
 '''
 
 class CliChatSocket:
-  '''## class ChatSocket
+  ''' # class ChatSocket
   Classe com a implementação dos sockets para a comunicação em texto, e as threads de envio e recebimento das mensagens
 
-  ### Parametros
+  ## Parâmetros:
   endereco_local : tuple[str, int]
       tupla contendo a string que representa o IP da maquina atual, e a porta que receberá a comunicação
   endereco_destino : tuple[str, int]
       tupla contendo a string que representa o IP da maquina de destino, e a porta que receberá a comunicação
   '''
   def __init__(self, endereco_local: tuple[str, int], endereco_destino: tuple[str, int]):
+    ''' Inicializa o socket com o endereço local fornecido, e guarda o endereço do adversário '''
     self.endereco_destino = endereco_destino
     self.sock = socket(AF_INET, SOCK_DGRAM)
     self.sock.bind(endereco_local)
 
-  def receber_mensagen(self) -> str:
+  def receber_mensagem(self) -> str:
+    ''' # receber_mensagem
+    Função que escuta a porta do endereço local esperando recebimento da mensagem do adversario
+
+    ## Retorna:
+    mensagem : str
+        String com a mensagem recebida na comunicação do chat
+    '''
     dados, _ = self.sock.recvfrom(1024)
     mensagem = dados.decode()
     return mensagem
 
-  def enviar_mensagem(self, mensagem: str):
+  def enviar_mensagem(self, mensagem: str) -> None:
+    ''' # enviar_mensagem
+    Função que escuta a porta do endereço local esperando recebimento da mensagem do adversario
+
+    ## Parâmetro:
+    mensagem : str
+        String com a mensagem para envio na comunicação do chat
+    '''
     dados = mensagem.encode()
     self.sock.sendto(dados, self.endereco_destino)
-
 
 '''
   Codigo de classe do Socket para uso do Jogo
@@ -63,17 +77,36 @@ class CliTabuleiroSocket:
     self.sock = socket(AF_INET, SOCK_DGRAM)
     self.sock.bind(endereco_local)
 
-  def receberTurno(self):
+  def receberTurno(self) -> int:
+    ''' # receberTurno
+    Função que escuta a porta do endereço local esperando a decisão de turno do adversario
+
+    ## Retorna:
+    turno : int
+        0 se o adversário decidiu ser o primeiro do jogo e 1 caso contrário
+    '''
     turno, _ = self.sock.recvfrom(1024)
     turno = turno.decode()
     return int(turno)
 
   def definirTurno(self, turno: str):
+    ''' # definirTurno
+    Função que envia para o endereço destino  a decisão de turno do usuário local
+
+    ## Parâmetros:
+    turno : int
+        0 se o usuário decidiu ser o primeiro do jogo e 1 caso contrário
+    '''
     self.sock.sendto(turno.encode(), self.endereco_destino)
 
-  def receberLance(self):
-    '''## receber_lance()
-    Recebe o lance do adversário via Socket
+  def receberLance(self) -> bool:
+    ''' # receber_lance
+    Recebe o lance do adversário via Socket, verifica se foi o sinal de fim de jogo, faz o movimento na 
+    estrutura de dados local e retorna se o movimento foi realizado
+
+    ## Retorna:
+    continuar : bool
+        `False` caso seja recebido o final de fim de jogo, e `True` se o movimento do adversário for registrado
     '''
     dados, _ = self.sock.recvfrom(1024)
     movimento = dados.decode()
@@ -86,8 +119,12 @@ class CliTabuleiroSocket:
     return True
 
   def enviarLance(self, movimento: str) -> bool:
-    '''## enviar_lance()
-    Recebe o lance e envia para o adversário via Socket
+    ''' # enviarLance
+    Função que escuta a porta do endereço local esperando recebimento do movimento do adversario
+
+    ## Parâmetro:
+    movimento : str
+        String com o movimento para envio na comunicação do chat
     '''
     if movimento == "fim":
       self.sock.sendto(movimento.encode(), self.endereco_destino)
@@ -106,14 +143,13 @@ class CliTabuleiroSocket:
 '''
   Classe com as regras de negocio do jogo Resta Um
 '''
-
 class JogoRestaUm:
   def __init__(self):
     self.tabuleiro = []
     self.turno = 0
 
   def reiniciaTabuleiro(self) -> list[list[str]]:
-    '''# recebeMovimento
+    '''# reiniciaTabuleiro
     Função que retorna um novo tabuleiro de Resta Um
 
     ## Retorna:
@@ -139,7 +175,7 @@ class JogoRestaUm:
       self.tabuleiro.append(linha)
 
   def estaNoFim(self) -> tuple[bool, int]:
-    '''# movimentoValido
+    '''# estaNoFim
 
     Função que verifica e retorna se o tabuleiro ainda possui movimentos a serem realizados,
     quantas peças faltaram ser removidas caso não
@@ -290,6 +326,17 @@ class IPHelper:
     self.ipAdversario: str = None
 
   def ipValido(self, ip: str) -> bool:
+    ''' # ipValido
+    Função que valida se o [ip] informado no parâmetro está no formato esperado
+
+    ## Parâmetros:
+    ip : str
+        Endereço de ip a ser validado
+
+    ## Retorno:
+    valido : bool
+        Caso o [ip] seja válido, retorna True, e caso contrario retorna False
+    '''
     if len(ip) < 7:
       return False
     
@@ -301,32 +348,74 @@ class IPHelper:
     for id in identificadores:
       try:
         id_int = int(id)
-        if id_int < 0:
+        if id_int < 0 or id_int > 255:
           return False
       except:
         return False
 
     return True
 
-  def defineEnderecoLocalJogo(self) ->tuple[str, int]:
+  def setIpAdversario(self, ip: str) -> None:
+    ''' # setIpAdversario
+    Função que define, com o [ip] informado, o IP do usuário
+
+    ## Parâmetros:
+    ip : str
+        Endereço de ip a ser guardado
+    '''
+    self.ipAdversario = ip
+
+  def obterEnderecoLocalJogo(self) ->tuple[str, int]:
+    ''' # obterEnderecoLocalJogo
+    Função que define, com o [ip] informado, o IP do usuário
+
+    ## Retorna:
+    endereco : str
+        O endereço de IP Local para ser utilizado no Jogo
+    porta : int
+        A porta Local para ser utilizada na comunicação no Jogo
+    '''
     return self.ipLocal, self.portaJogo
 
-  def defineEnderecoLocalChat(self) ->tuple[str, int]:
+  def obterEnderecoLocalChat(self) ->tuple[str, int]:
+    ''' # obterEnderecoLocalChat
+    Função que define, com o [ip] informado, o IP do usuário
+
+    ## Retorna:
+    endereco : str
+        O endereço de IP Local para ser utilizado no Chat
+    porta : int
+        A porta Local para ser utilizada na comunicação no Chat
+    '''
     return self.ipLocal, self.portaChat
 
-  def defineEnderecoAdversarioJogo(self) ->tuple[str, int]:
+  def obterEnderecoAdversarioJogo(self) ->tuple[str, int]:
+    ''' # obterEnderecoAdversarioJogo
+    Função que define, com o [ip] informado, o IP do usuário
+
+    ## Retorna:
+    endereco : str
+        O endereço de IP do Adversario para ser utilizado no Jogo
+    porta : int
+        A porta do Adversario para ser utilizada na comunicação no Jogo
+    '''
     return self.ipAdversario, self.portaJogo
 
-  def defineEnderecoAdversarioChat(self) ->tuple[str, int]:
-    return self.ipAdversario, self.portaChat
+  def obterEnderecoAdversarioChat(self) ->tuple[str, int]:
+    ''' # obterEnderecoAdversarioChat
+    Função que define, com o [ip] informado, o IP do usuário
 
-  def setIpAdversario(self, ip):
-    self.ipAdversario = ip
+    ## Retorna:
+    endereco : str
+        O endereço de IP do Adversario para ser utilizado no Chat
+    porta : int
+        A porta do Adversario para ser utilizada na comunicação no Chat
+    '''
+    return self.ipAdversario, self.portaChat
 
 '''
   Codigo para instancia da interface grafica de inserir o ip do adversário
 '''
-
 class GuiDefineAdversario:
   ''' # RestaUmInterface
 
@@ -364,7 +453,7 @@ class GuiDefineAdversario:
   def criaComponenteEstilos(self):
     ''' # criaComponenteEstilos
 
-    Função de criação de componentes: cria o estilo padrão para os botões da GUI
+    Função de criação de componentes: cria o estilo padrão para os botões e fontes da GUI
     '''
     self.fonteGeral = Font(size=12, family="Trebuchet MS")
     self.fonteErro = Font(size=9, family="Trebuchet MS")
@@ -377,9 +466,10 @@ class GuiDefineAdversario:
       )
 
   def criaComponenteIP(self):
-    ''' # criaComponenteChat
+    ''' # criaComponenteIP
 
-    Função de criação de componentes: cria a entrada e componentes do chat do jogo
+    Função de criação de componentes: cria a entrada e componentes para
+    receber o IP do jogador adversário
     '''
     self.varIP = StringVar()
     self.varValidadeIP = StringVar()
@@ -402,9 +492,9 @@ class GuiDefineAdversario:
     self.inputIP.bind("<Key>", lambda e: bindEnter(e.keycode))
 
   def recebeEnderecoIP(self):
-    ''' # chatEnviaMensagem
+    ''' # recebeEnderecoIP
 
-    Função que captura o texto digitado pelo usuário e envia para o adversário
+    Função que captura o texto digitado na entrada e valida o IP informado
     '''
     try:
       ip = self.varIP.get()
@@ -417,6 +507,9 @@ class GuiDefineAdversario:
       print("[Env. Msg.]: nenhuma resposta obtida")
 
   def iniciaAplicacao(self):
+    '''# iniciaAplicacao
+    Inicializa a janel da interface gráfica para receber o IP
+    '''
     self.janela.mainloop()
 
 '''
@@ -933,7 +1026,7 @@ class GuiRestaUm:
     '''
     while True:
       try:
-        msg = self.cliChat.receber_mensagen()
+        msg = self.cliChat.receber_mensagem()
         self.addMensagem("Adversário", msg)
       except:
         print("[Rec. msg]: nenhuma resposta obtida")
@@ -967,7 +1060,6 @@ class GuiRestaUm:
 
     self.janela.mainloop()
 
-
 def mainApp():
   # Inicializando o socket do cliente do jogador
   print("Se tento criar um executavel sem esse console,")
@@ -980,8 +1072,8 @@ def mainApp():
   if iph.ipAdversario == None:
     return None
   
-  ct = CliTabuleiroSocket(iph.defineEnderecoLocalJogo(), iph.defineEnderecoAdversarioJogo())
-  cc = CliChatSocket(iph.defineEnderecoLocalChat(), iph.defineEnderecoAdversarioChat())
+  ct = CliTabuleiroSocket(iph.obterEnderecoLocalJogo(), iph.obterEnderecoAdversarioJogo())
+  cc = CliChatSocket(iph.obterEnderecoLocalChat(), iph.obterEnderecoAdversarioChat())
 
   # Inicializando o objeto que instanciará o jogo
   try:

@@ -518,7 +518,7 @@ class GuiRestaUm:
     '''
     while True:
       try:
-        msg = self.cliChat.receber_mensagen()
+        msg = self.cliChat.receber_mensagem()
         self.addMensagem("Adversário", msg)
       except:
         print("[Rec. msg]: nenhuma resposta obtida")

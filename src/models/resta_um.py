@@ -4,7 +4,7 @@ class JogoRestaUm:
     self.turno = 0
 
   def reiniciaTabuleiro(self) -> list[list[str]]:
-    '''# recebeMovimento
+    '''# reiniciaTabuleiro
     Função que retorna um novo tabuleiro de Resta Um
 
     ## Retorna:
@@ -30,7 +30,7 @@ class JogoRestaUm:
       self.tabuleiro.append(linha)
 
   def estaNoFim(self) -> tuple[bool, int]:
-    '''# movimentoValido
+    '''# estaNoFim
 
     Função que verifica e retorna se o tabuleiro ainda possui movimentos a serem realizados,
     quantas peças faltaram ser removidas caso não

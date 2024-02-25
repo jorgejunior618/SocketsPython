@@ -40,7 +40,7 @@ class GuiDefineAdversario:
   def criaComponenteEstilos(self):
     ''' # criaComponenteEstilos
 
-    Função de criação de componentes: cria o estilo padrão para os botões da GUI
+    Função de criação de componentes: cria o estilo padrão para os botões e fontes da GUI
     '''
     self.fonteGeral = Font(size=12, family="Trebuchet MS")
     self.fonteErro = Font(size=9, family="Trebuchet MS")
@@ -53,9 +53,10 @@ class GuiDefineAdversario:
       )
 
   def criaComponenteIP(self):
-    ''' # criaComponenteChat
+    ''' # criaComponenteIP
 
-    Função de criação de componentes: cria a entrada e componentes do chat do jogo
+    Função de criação de componentes: cria a entrada e componentes para
+    receber o IP do jogador adversário
     '''
     self.varIP = StringVar()
     self.varValidadeIP = StringVar()
@@ -78,9 +79,9 @@ class GuiDefineAdversario:
     self.inputIP.bind("<Key>", lambda e: bindEnter(e.keycode))
 
   def recebeEnderecoIP(self):
-    ''' # chatEnviaMensagem
+    ''' # recebeEnderecoIP
 
-    Função que captura o texto digitado pelo usuário e envia para o adversário
+    Função que captura o texto digitado na entrada e valida o IP informado
     '''
     try:
       ip = self.varIP.get()
@@ -93,4 +94,7 @@ class GuiDefineAdversario:
       print("[Env. Msg.]: nenhuma resposta obtida")
 
   def iniciaAplicacao(self):
+    '''# iniciaAplicacao
+    Inicializa a janel da interface gráfica para receber o IP
+    '''
     self.janela.mainloop()

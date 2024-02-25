@@ -18,17 +18,36 @@ class CliTabuleiroSocket:
     self.sock = socket(AF_INET, SOCK_DGRAM)
     self.sock.bind(endereco_local)
 
-  def receberTurno(self):
+  def receberTurno(self) -> int:
+    ''' # receberTurno
+    Função que escuta a porta do endereço local esperando a decisão de turno do adversario
+
+    ## Retorna:
+    turno : int
+        0 se o adversário decidiu ser o primeiro do jogo e 1 caso contrário
+    '''
     turno, _ = self.sock.recvfrom(1024)
     turno = turno.decode()
     return int(turno)
 
   def definirTurno(self, turno: str):
+    ''' # definirTurno
+    Função que envia para o endereço destino  a decisão de turno do usuário local
+
+    ## Parâmetros:
+    turno : int
+        0 se o usuário decidiu ser o primeiro do jogo e 1 caso contrário
+    '''
     self.sock.sendto(turno.encode(), self.endereco_destino)
 
-  def receberLance(self):
-    '''## receber_lance()
-    Recebe o lance do adversário via Socket
+  def receberLance(self) -> bool:
+    ''' # receber_lance
+    Recebe o lance do adversário via Socket, verifica se foi o sinal de fim de jogo, faz o movimento na 
+    estrutura de dados local e retorna se o movimento foi realizado
+
+    ## Retorna:
+    continuar : bool
+        `False` caso seja recebido o final de fim de jogo, e `True` se o movimento do adversário for registrado
     '''
     dados, _ = self.sock.recvfrom(1024)
     movimento = dados.decode()
@@ -41,8 +60,12 @@ class CliTabuleiroSocket:
     return True
 
   def enviarLance(self, movimento: str) -> bool:
-    '''## enviar_lance()
-    Recebe o lance e envia para o adversário via Socket
+    ''' # enviarLance
+    Função que escuta a porta do endereço local esperando recebimento do movimento do adversario
+
+    ## Parâmetro:
+    movimento : str
+        String com o movimento para envio na comunicação do chat
     '''
     if movimento == "fim":
       self.sock.sendto(movimento.encode(), self.endereco_destino)
