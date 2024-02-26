@@ -12,15 +12,14 @@ Caso o IP iformado seja válido, seguiremos para a proxima tela
 
 ### Gameplay
 Na parte inferior direita da tela há uma entrada de texto, onde se pode enviar mensagens para o adversário.
+Na caixa acima, é possivel observar o histórico de conversas com o oponente.
 
-Na caixa acima, é possivel observar o historico de conversas com o adversário.
-
-Use o chat para decidir com o adversário que irá iniciar o jogo, e segundo o uqe decidirem, clique no Botão que representa a sua decisão (parte superior a direita, "1º" caso você comece ou "2º" caso contrário), o jogo so iniciará quando as respostas de ambos sejam compativeis.
+Use o chat para decidir com o adversário quem irá iniciar o jogo, e segundo o que decidirem, clique no Botão que representa a sua decisão (parte superior a direita, "1º" caso você comece ou "2º" caso contrário), o jogo so iniciará quando as respostas de ambos forem compatíveis.
 
 <img src="demo/tabuleiro_1.jpg" alt="Tela inicial da gameplay" title="ANTes que reste uma - Jogo Multiplayer" width=800/>
 
 Após decidirem quem irá iniciar a partida, as peças do tabuleiro estarão disponíveis para a pessoa do turno atual realizar a jogada.
-Para jogar clique na peça que voce deseja movimentar, ela será selecionada (caso queira remover a seleção basta clicar novamente na mesma peça), em seguida clique na peça que deseja remover.
+Para jogar clique na peça que você deseja movimentar, ela será selecionada (caso queira remover a seleção basta clicar novamente na mesma peça), em seguida clique na peça que deseja remover.
 O turno só será passado para o próximo quando uma jogada válida for realizada.
 <div style="display: flex;">
   <img src="demo/tabuleiro_2.jpg" alt="Tabuleiro com uma peça selecionada" title="ANTes que reste uma - Jogo Multiplayer" width=400/>
@@ -28,7 +27,7 @@ O turno só será passado para o próximo quando uma jogada válida for realizad
 </div>
 
 ### Fim de Jogo
-O jogo acaba quando resta apenas uma peça no tabuleiro, ou quando não é ais possivel realizar jogadas. Ao clicar no botão "Novo Jogo" a fase de decisão de turnos será iniciada novamente para iniciar uma nova partida.
+O jogo acaba quando resta apenas uma peça no tabuleiro, ou quando não é mais possivel realizar jogadas. Ao clicar no botão "Novo Jogo" a fase de decisão de turnos será iniciada novamente para iniciar uma nova partida.
 
 #### Condições de vitória
 - Vence aquele realiza a jogada em que resta apenas uma peça no tabuleiro.
