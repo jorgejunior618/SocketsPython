@@ -33,6 +33,7 @@ class GuiDefineAdversario:
     Função de criação de componentes: cria a janela raiz da interface gráfica
     '''
     self.janela = Tk()
+    self.janela.iconbitmap("./assets/icone.ico")
     self.janela.title("ANTes que Reste Um - definir adversário")
     self.janela.geometry("270x115")
     self.janela.resizable(False, False)

@@ -159,6 +159,7 @@ class GuiRestaUm:
     Função de criação de componentes: cria a janela raiz da interface gráfica
     '''
     self.janela = Tk()
+    self.janela.iconbitmap("./assets/icone.ico")
     self.janela.title("ANTes que Reste Um")
     self.janela.geometry("800x500")
     self.janela.resizable(False, False)
