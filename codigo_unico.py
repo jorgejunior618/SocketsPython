@@ -188,7 +188,7 @@ class JogoRestaUm:
     for i in range(9):
       linha = "".join(self.tabuleiro[i])
       contagemPecas += linha.count('*')
-      coluna = "".join(self.tabuleiro[:][i])
+      coluna = "".join([lin[i] for lin in self.tabuleiro])
       if (linha.find("**O") != -1) or (linha.find("O**") != -1):
         return False, 0
       if (coluna.find("**O") != -1) or (coluna.find("O**") != -1):
@@ -939,6 +939,7 @@ class GuiRestaUm:
     '''
     terminou, contPecas = self.cliTab.jogo.estaNoFim()
     if terminou:
+      GuiRestaUm.turnoVar.set("")
       self.reproduzFimDeJogo()
       GuiRestaUm.prontoPJogar = False
       self.cliTab.enviarLance("fim")
@@ -1068,28 +1069,33 @@ class GuiRestaUm:
     self.janela.mainloop()
 
 def mainApp():
-  # Inicializando o socket do cliente do jogador
-  print("Se tento criar um executavel sem esse console,")
-  print("o arquivo é acusado como virus")
-  print(";-;")
+  # # Inicializando o socket do cliente do jogador
+  # print("Se tento criar um executavel sem esse console,")
+  # print("o arquivo é acusado como virus")
+  # print(";-;")
 
-  iph = IPHelper()
-  gdefAdv = GuiDefineAdversario(iph)
-  gdefAdv.iniciaAplicacao()
-  if iph.ipAdversario == None:
-    return None
+  # iph = IPHelper() # para o jogo em diferentes maquinas
+  # gdefAdv = GuiDefineAdversario(iph)
+  # gdefAdv.iniciaAplicacao()
+  # if iph.ipAdversario == None:
+  #   return None
   
-  ct = CliTabuleiroSocket(iph.obterEnderecoLocalJogo(), iph.obterEnderecoAdversarioJogo())
-  cc = CliChatSocket(iph.obterEnderecoLocalChat(), iph.obterEnderecoAdversarioChat())
+  # ct = CliTabuleiroSocket(iph.obterEnderecoLocalJogo(), iph.obterEnderecoAdversarioJogo())
+  # cc = CliChatSocket(iph.obterEnderecoLocalChat(), iph.obterEnderecoAdversarioChat())
 
-  # Inicializando o objeto que instanciará o jogo
-  try:
+  try: # permitindo apenas duas instancias do jogo em uma mesma maquina
+    ct = CliTabuleiroSocket(('localhost', 4321), ('localhost', 1234))
+    cc = CliChatSocket(('localhost', 54321), ('localhost', 12345))
+  except:
+    ct = CliTabuleiroSocket(('localhost', 1234), ('localhost', 4321))
+    cc = CliChatSocket(('localhost', 12345), ('localhost', 54321))
+
+  try: # Inicializando o objeto que instanciará o jogo
     meuJogo = GuiRestaUm(ct, cc)
   except Exception as e:
     print(e)
 
-  # Inicializando a aplicação grafica do jogo
-  meuJogo.iniciaAplicacao()
+  meuJogo.iniciaAplicacao() # Inicializando a aplicação grafica do jogo
 
 if __name__ == "__main__":
   mainApp()
