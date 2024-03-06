@@ -430,6 +430,7 @@ class GuiRestaUm:
     '''
     terminou, contPecas = self.cliTab.jogo.estaNoFim()
     if terminou:
+      GuiRestaUm.turnoVar.set("")
       self.reproduzFimDeJogo()
       GuiRestaUm.prontoPJogar = False
       self.cliTab.enviarLance("fim")
