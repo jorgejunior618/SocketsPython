@@ -43,7 +43,7 @@ class JogoRestaUm:
     for i in range(9):
       linha = "".join(self.tabuleiro[i])
       contagemPecas += linha.count('*')
-      coluna = "".join(self.tabuleiro[:][i])
+      coluna = "".join([lin[i] for lin in self.tabuleiro])
       if (linha.find("**O") != -1) or (linha.find("O**") != -1):
         return False, 0
       if (coluna.find("**O") != -1) or (coluna.find("O**") != -1):
