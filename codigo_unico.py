@@ -111,12 +111,14 @@ class CliTabuleiroSocket:
     dados, _ = self.sock.recvfrom(1024)
     movimento = dados.decode()
     if movimento == "fim":
-      return False
+      return False, False
+    if movimento == "resign":
+      return False, True
 
     mover, retirar = self.jogo.recebeMovimento(movimento)
     _, destino = self.jogo.movimentoValido(mover, retirar)
     self.jogo.fazMovimento(mover, retirar, destino)
-    return True
+    return True, False
 
   def enviarLance(self, movimento: str) -> bool:
     ''' # enviarLance
@@ -125,8 +127,15 @@ class CliTabuleiroSocket:
     ## Parâmetro:
     movimento : str
         String com o movimento para envio na comunicação do chat
+    
+    ## Retorno:
+    bool
+        True caso o movimento/envio foi feito corretamente, false caso seja um movimento inválido
     '''
     if movimento == "fim":
+      self.sock.sendto(movimento.encode(), self.endereco_destino)
+      return True
+    if movimento == "resign":
       self.sock.sendto(movimento.encode(), self.endereco_destino)
       return True
 
@@ -550,6 +559,7 @@ class GuiRestaUm:
     '''
     self.cliTab: CliTabuleiroSocket = cli_tabuleiro
     self.cliChat: CliChatSocket = cli_chat
+    self.desistiu = False
     self.cliTab.jogo.reiniciaTabuleiro()
     self.criaComponenteJanela()
     mixer.init()
@@ -849,11 +859,14 @@ class GuiRestaUm:
     '''
     while True:
       try:
-        recebeu = self.cliTab.receberLance()
+        recebeu, advDesistiu = self.cliTab.receberLance()
 
         if recebeu:
           GuiRestaUm.reproduzSom('movimento')
           self.reposicionaPecas()
+        elif advDesistiu:
+          self.checaFimDeJogo(desistencia=True)
+          break
         else: break
       except:
         print("[Movimento]: nenhuma resposta obtida")
@@ -880,6 +893,8 @@ class GuiRestaUm:
             GuiRestaUm.turnoVar.set("Você inicia a partida")
           elif GuiRestaUm.meuTurno == 1:
             GuiRestaUm.turnoVar.set("Seu adversario iniciará a partida")
+          GuiRestaUm.botaoDesistencia = Button(self.janela, text="Desisitir", command=self._desistir, style="Estilizado.TButton")
+          GuiRestaUm.botaoDesistencia.place(x=520, y=45)
           thread_jogo = Thread(target=self.recebeJogadaAdversario, daemon=True)
           thread_jogo.start()
           break
@@ -910,6 +925,11 @@ class GuiRestaUm:
     GuiRestaUm.labelInfoTurno = Label(self.janela, textvariable=GuiRestaUm.turnoVar, font=GuiRestaUm.fonteText)
     GuiRestaUm.labelInfoTurno.place(x=520, y=15)
 
+  def _desistir(self):
+    self.desistiu = True
+    self.checaFimDeJogo(desistencia=True)
+    self.cliTab.enviarLance("resign")
+
   def reposicionaPecas(self):
     ''' # reposicionaPecas
 
@@ -928,7 +948,7 @@ class GuiRestaUm:
 
     self.checaFimDeJogo()
 
-  def checaFimDeJogo(self):
+  def checaFimDeJogo(self, desistencia=False):
     ''' # checaFimDeJogo
 
     Função que verifica se o jogo finalizou, se restou apenas uma peça, e se o usuário
@@ -938,27 +958,34 @@ class GuiRestaUm:
     fim de jogo e adiciona a opção de jogar novamente
     '''
     terminou, contPecas = self.cliTab.jogo.estaNoFim()
-    if terminou:
+    if terminou or desistencia:
       GuiRestaUm.turnoVar.set("")
       self.reproduzFimDeJogo()
       GuiRestaUm.prontoPJogar = False
-      self.cliTab.enviarLance("fim")
+      if not desistencia:
+        self.cliTab.enviarLance("fim")
 
       vencedor = False
-      if contPecas > 1:
+      if desistencia:
+        if not self.desistiu: vencedor = True
+      elif contPecas > 1:
         vencedor = self.cliTab.jogo.turno == GuiRestaUm.meuTurno
       else:
         vencedor = self.cliTab.jogo.turno != GuiRestaUm.meuTurno
       fonteResultado = Font(size=18, weight="bold")
 
       if vencedor:
-        if contPecas == 1:
+        if desistencia:
+          GuiRestaUm.labelInfoResultado = Label(self.janela,text="Parabéns, você venceu!\nSeu adversario desistiu!",font=fonteResultado)
+        elif contPecas == 1:
           GuiRestaUm.labelInfoResultado = Label(self.janela,text="Parabéns, você venceu!\n         Restou Um!",font=fonteResultado)
         else:
           GuiRestaUm.labelInfoResultado = Label(self.janela,text=f"Fim de movimentos\n     Você venceu!\n      Restaram {contPecas}",font=fonteResultado)
         self.reproduzSom("vitoria")
       else:
-        if contPecas == 1:
+        if desistencia:
+          GuiRestaUm.labelInfoResultado = Label(self.janela,text="Você perdeu :(",font=fonteResultado)
+        elif contPecas == 1:
           GuiRestaUm.labelInfoResultado = Label(self.janela,text="Você perdeu :(\n   Restou Um  ",font=fonteResultado)
         else:
           GuiRestaUm.labelInfoResultado = Label(self.janela,text=f"Fim de movimentos\n    Você perdeu :(  \n      Restaram {contPecas}",font=fonteResultado)
@@ -973,6 +1000,7 @@ class GuiRestaUm:
         width=10
       )
       GuiRestaUm.botaoResetaJogo.place(x=650, y=150, anchor="center")
+      GuiRestaUm.botaoDesistencia.destroy()
 
   def resetaJogo(self):
     ''' # resetaJogo
