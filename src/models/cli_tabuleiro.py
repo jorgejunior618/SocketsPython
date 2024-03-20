@@ -52,12 +52,14 @@ class CliTabuleiroSocket:
     dados, _ = self.sock.recvfrom(1024)
     movimento = dados.decode()
     if movimento == "fim":
-      return False
+      return False, False
+    if movimento == "resign":
+      return False, True
 
     mover, retirar = self.jogo.recebeMovimento(movimento)
     _, destino = self.jogo.movimentoValido(mover, retirar)
     self.jogo.fazMovimento(mover, retirar, destino)
-    return True
+    return True, False
 
   def enviarLance(self, movimento: str) -> bool:
     ''' # enviarLance
@@ -66,8 +68,15 @@ class CliTabuleiroSocket:
     ## Parâmetro:
     movimento : str
         String com o movimento para envio na comunicação do chat
+    
+    ## Retorno:
+    bool
+        True caso o movimento/envio foi feito corretamente, false caso seja um movimento inválido
     '''
     if movimento == "fim":
+      self.sock.sendto(movimento.encode(), self.endereco_destino)
+      return True
+    if movimento == "resign":
       self.sock.sendto(movimento.encode(), self.endereco_destino)
       return True
 
